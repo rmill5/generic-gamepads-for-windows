@@ -1,5 +1,5 @@
 # generic-gamepads-for-windows
-If Windows won't recognise your no-name gamepad, no emulators or mappers work, and you don't want to buy another controller, then this method is a last resort. **[WIP]**</br>
+If Windows won't recognise your third party no-name gamepad, no emulators or mappers work, and you don't want to buy another controller, then this method is a last resort. **[WIP]**</br>
 
 ## Test if the gamepad API supports your controller here: https://hardwaretester.com/gamepad/ to see if this could even work if it was finished
 
