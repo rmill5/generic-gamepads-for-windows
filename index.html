@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <script>let controllerIndex = null;
+        window.addEventListener("gamepadconnected", (event) => {
+            handleConnectDisconnect(event, true);
+        });
+        window.addEventListener("gamepaddisconnected", (event) => {
+            handleConnectDisconnect(event, false);
+        });
+        function handleConnectDisconnect(event, connected) {
+            const controllerAreaConnected = document.getElementById(
+                "controller-connected-area"
+            );
+            const gamepad = event.gamepad;
+            console.log(gamepad);
+            if (connected) {
+                controllerIndex = 2;//The main discriminator of controller index, set to radio
+                controllerAreaConnected.style.display = "block";
+                createButtonLayout(gamepad.buttons);
+                createAxesLayout(gamepad.axes);
+            }
+        }
+        function createButtonLayout(buttons) {
+            const buttonArea = document.getElementById("buttons");
+            buttonArea.innerHTML = "";
+            for (let i = 0; i < buttons.length; i++) {
+                buttonArea.innerHTML += createButtonHtml(i, 0);
+            }
+        }
+        function createButtonHtml(index, value) {
+            return `<div class="button" id="button-${index}">${value.toFixed(2)}</div>`;
+        }
+        function handleButtons(buttons, butts) {
+            for (let i = 0; i < buttons.length; i++) {
+                const buttonValue = buttons[i].value;
+                butts.push(buttonValue);//Append each button value to array
+                const buttonArea = document.getElementById(`button-${i}`);
+                buttonArea.innerHTML = buttonValue.toFixed(2);
+            }
+        }
+        function createAxesLayout(axes) {
+            const buttonsArea = document.getElementById("buttons");
+            for (let i = 0; i < axes.length; i++) {
+                buttonsArea.innerHTML += `<div class='axis' id=axis-${i}>${axes[i].toFixed(4)}</div> `;
+            }
+        }
+        function handleAxes(axes, acses) {
+            for (let i = 0; i < axes.length; i++) {
+                const axis = document.querySelector(`#axis-${i}`);
+                const value = axes[i];
+                acses.push(value);//Append each axis value to array
+                // if (value > 0.06 || value < -0.06) {
+                axis.innerHTML = value.toFixed(4);
+                // }
+            }
+        }
+        function gameLoop() {
+            if (controllerIndex !== null) {
+                const gamepad = navigator.getGamepads()[document.getElementById("indexes").elements["index"].value];
+                const butts = [];//Initialise clean arrays for request
+                const acses = [];
+                handleButtons(gamepad.buttons, butts);//Fill arrays with current state
+                handleAxes(gamepad.axes, acses);
+                //TODO: (Optional) Make increment/decrement buttons to change controller index
+                if (sending) {
+                    fetch("http://localhost:5000", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            Buttons: butts,
+                            Axes: acses
+                        }),
+                    headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                    }
+                    })/*//Since server is simple it'll always respond with the index html
+                    .then((response) => response.json())
+                    .then((json) => console.log(json))*/;
+                }
+            }/*
+            {"buttons":[0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
+            "axes":[0.003921627998352051,0.003921627998352051,0.003921627998352051,-1,-0.9450980424880981,
+            0.003921627998352051,0,0,0,71.85713958740234]}
+            */
+            requestAnimationFrame(gameLoop);
+            
+        }
+        function toggleReq() {
+            if (!sending) {
+                sending = true;
+                document.getElementById("switch").innerText = "Stop requests";
+            } else {
+                sending = false;
+                document.getElementById("switch").innerText = "Start requests";
+            }
+        }
+        let sending = false;
+        try {
+            gameLoop();
+        }
+        catch (error) {
+            console.error(error);
+        }
+        </script>
+  </head>
+  <body>
+      <form id="indexes">
+          <input type="radio" id="c1" name="index" value="0"> Gamepad 1
+          <input type="radio" id="c2" name="index" value="1"> Gamepad 2
+          <input type="radio" id="c3" name="index" value="2" checked="checked"> Gamepad 3
+          <input type="radio" id="c4" name="index" value="3"> Gamepad 4
+      </form>
+      <button id="switch" onclick="toggleReq()">Start requests</button>
+      <div id="controller-connected-area">
+          <div id="buttons"></div>
+      </div>
+  </body>
+</html>
