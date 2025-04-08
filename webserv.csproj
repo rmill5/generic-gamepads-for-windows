@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <Reference Include="vJoyInterfaceWrap">
-      <HintPath>..\fed\vJoyInterfaceWrap.dll</HintPath>
+      <HintPath>..\vJoyInterfaceWrap.dll</HintPath>
     </Reference>
   </ItemGroup>
 
